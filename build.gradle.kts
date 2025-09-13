@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "2.2.10"
     id("org.springframework.boot") version "3.5.5"
     id("io.spring.dependency-management") version "1.1.7"
-    id("tech.mappie.plugin") version "2.2.10-1.4.2"
+    id("tech.mappie.plugin") version "2.2.10-1.5.0"
 }
 
 group = "at.mappie"
