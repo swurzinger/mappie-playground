@@ -34,4 +34,29 @@ class MappieMapperTest {
     }
 
 
+    @Test
+    fun `WeightDetails should be null if empty`() {
+
+        val invoice = InvoiceDto(
+            invoiceNumber = "123123",
+            items = listOf(
+                InvoiceLineItemDto(
+                    invoiceItemNumber = "001",
+                    weightDetails = WeightDetailsDto(
+                        grossWeight = null,
+                        unitOfWeight = null,
+                    )
+                )
+            )
+        )
+        val eventMetadata = EventMetadataDto(Instant.now())
+
+        val result = invoice.toEntity(eventMetadata)
+
+        assertThat(result).isNotNull()
+        assertThat(result.items).isNotEmpty()
+        assertThat(result.items[0].weightDetails).isNull()
+    }
+
+
 }

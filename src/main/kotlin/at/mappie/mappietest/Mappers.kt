@@ -41,19 +41,20 @@ private class MappieMappers {
 
         override fun map(first: InvoiceLineItemDto, second: Invoice): InvoiceLineItem = mapping {
             to::invoice fromValue second
+            to::weightDetails fromProperty first::weightDetails transform { it?.toEntity() }
         }
 
     }
 
     object InvoiceMapper : ObjectMappie2<InvoiceDto, EventMetadataDto, Invoice>() {
         override fun map(first: InvoiceDto, second: EventMetadataDto): Invoice = mapping {
-            to::eventMetadata fromValue kotlin.run { EventMetadataMapper.map(second) }
+            to::eventMetadata fromValue kotlin.run { second.toEntity() }
             to::items fromValue mutableListOf()
         }
 
         fun mapWithItems(first: InvoiceDto, second: EventMetadataDto): Invoice = map(first, second)
             .also { invoice ->
-                invoice.items.addAll(first.items?.map { InvoiceLineItemMapper.map(it, invoice) } ?: emptyList())
+                invoice.items.addAll(first.items?.map { it.toEntity(invoice) } ?: emptyList())
             }
     }
 }
