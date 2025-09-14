@@ -1,5 +1,7 @@
 package at.mappie.mappietest
 
+/*
+
 import at.mappie.mappietest.entity.*
 import at.mappie.mappietest.dto.EventMetadata as EventMetadataModel
 import at.mappie.mappietest.dto.Invoice as InvoiceDto
@@ -28,3 +30,5 @@ fun WeightDetailsDto.toEntity() =
     else null
 
 fun EventMetadataModel.toEntity() = EventMetadata(eventSource = this.eventSource, eventTimestamp = this.eventTimestamp)
+
+*/

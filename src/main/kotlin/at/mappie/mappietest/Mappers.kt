@@ -1,24 +1,38 @@
 package at.mappie.mappietest
 
-import at.mappie.mappietest.entity.EventMetadata
-import at.mappie.mappietest.entity.Invoice
-import at.mappie.mappietest.entity.InvoiceLineItem
-import at.mappie.mappietest.entity.WeightDetails
+import at.mappie.mappietest.entity.*
 import tech.mappie.api.ObjectMappie
 import tech.mappie.api.ObjectMappie2
 import java.math.BigDecimal
 import at.mappie.mappietest.dto.EventMetadata as EventMetadataDto
-import at.mappie.mappietest.dto.Invoice as InvoiceSapDto
+import at.mappie.mappietest.dto.Invoice as InvoiceDto
 import at.mappie.mappietest.dto.InvoiceLineItem as InvoiceLineItemDto
 import at.mappie.mappietest.dto.WeightDetails as WeightDetailsDto
 
-class Mappers {
+
+fun InvoiceDto.toEntity(eventMetadata: EventMetadataDto) =
+    MappieMappers.InvoiceMapper.mapWithItems(this, eventMetadata)
+
+fun InvoiceLineItemDto.toEntity(invoice: Invoice) =
+    MappieMappers.InvoiceLineItemMapper.map(this, invoice)
+
+fun WeightDetailsDto.toEntity() =
+    MappieMappers.WeightDetailsMapper.mapIfNotEmpty(this)
+
+fun EventMetadataDto.toEntity() =
+    MappieMappers.EventMetadataMapper.map(this)
+
+
+private class MappieMappers {
 
     object WeightDetailsMapper : ObjectMappie<WeightDetailsDto, WeightDetails>() {
         override fun map(from: WeightDetailsDto): WeightDetails = mapping {
             to::grossWeight fromProperty from::grossWeight transform { it ?: BigDecimal.ZERO }
             to::unitOfWeight fromProperty from::unitOfWeight transform { it ?: "" }
         }
+
+        fun mapIfNotEmpty(from: WeightDetailsDto): WeightDetails? =
+            if (from.grossWeight != null && from.unitOfWeight != null) map(from) else null
     }
 
     object EventMetadataMapper : ObjectMappie<EventMetadataDto, EventMetadata>()
@@ -31,15 +45,15 @@ class Mappers {
 
     }
 
-    object InvoiceMapper : ObjectMappie2<InvoiceSapDto, EventMetadataDto, Invoice>() {
-        override fun map(first: InvoiceSapDto, second: EventMetadataDto): Invoice = mapping {
-            to::eventMetadata fromValue run { EventMetadataMapper.map(second) }
+    object InvoiceMapper : ObjectMappie2<InvoiceDto, EventMetadataDto, Invoice>() {
+        override fun map(first: InvoiceDto, second: EventMetadataDto): Invoice = mapping {
+            to::eventMetadata fromValue kotlin.run { EventMetadataMapper.map(second) }
             to::items fromValue mutableListOf()
         }
 
-//        fun mapActually(first: InvoiceSapDto, second: EventMetadataDto): Invoice = map(first, second)
-//            .also { invoice ->
-//                invoice.items.addAll(first.items?.map { InvoiceLineItemMapper.map(it, invoice) } ?: emptyList())
-//            }
+        fun mapWithItems(first: InvoiceDto, second: EventMetadataDto): Invoice = map(first, second)
+            .also { invoice ->
+                invoice.items.addAll(first.items?.map { InvoiceLineItemMapper.map(it, invoice) } ?: emptyList())
+            }
     }
 }

@@ -26,8 +26,9 @@ class MappieMapperTest {
                 )
             )
         )
+        val eventMetadata = EventMetadataDto(Instant.now())
 
-        val result = Mappers.InvoiceMapper.mapActually(invoice, EventMetadataDto(Instant.now()))
+        val result = invoice.toEntity(eventMetadata)
 
         assertThat(result).isNotNull()
     }
